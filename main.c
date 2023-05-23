@@ -25,27 +25,17 @@ void main(void)
 {
 	int ret;
 
-	if (!device_is_ready(led.port)) {
-		return;
-	}
-
-	if (!device_is_ready(button.port)) {
-		return;
-	}
+	if (!device_is_ready(led.port)) return;
+	if (!device_is_ready(button.port)) return;
 
 	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0) {
-		return;
-	}
+	if (ret < 0) return;
 
 	ret = gpio_pin_configure_dt(&button, GPIO_INPUT);
-	if (ret < 0) {
-		return;
-	}
+	if (ret < 0) return;
 
 	while (1) {
 		gpio_pin_set_dt(&led, gpio_pin_get_dt(&button));
-
 		k_msleep(SLEEP_TIME_MS);
 	}
 }
