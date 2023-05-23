@@ -21,6 +21,37 @@
 static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
 static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET(SW0_NODE, gpios);
 
+static struct gpio_callback pin_cb_data;
+
+void pin_isr(const struct device* dev, struct gpio_callback* cb, uint32_t pins){
+	gpio_pin_toggle_dt(&led);
+}
+
+void main(void){
+	int ret;
+
+	if (!device_is_ready(led.port)) return;
+	if (!device_is_ready(button.port)) return;
+
+	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
+	if (ret < 0) return;
+
+	ret = gpio_pin_configure_dt(&button, GPIO_INPUT);
+	if (ret < 0) return;
+
+	gpio_pin_interrupt_configure_dt(&button, GPIO_INT_EDGE_TO_ACTIVE);
+
+	gpio_init_callback(&pin_cb_data, pin_isr, BIT(button.pin));
+	gpio_add_callback(button.port, &pin_cb_data);
+
+	for (;;){
+		k_msleep(10000);
+	}
+}
+
+
+/**
+ * Exer 1
 void main(void)
 {
 	int ret;
@@ -38,4 +69,4 @@ void main(void)
 		gpio_pin_set_dt(&led, gpio_pin_get_dt(&button));
 		k_msleep(SLEEP_TIME_MS);
 	}
-}
+}*/
